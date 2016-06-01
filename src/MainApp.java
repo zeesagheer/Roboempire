@@ -1,14 +1,10 @@
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.wb.swt.SWTResourceManager;
 import pl.autoempire.core.json.JSONArray;
-import org.json.JSONException;
-
+import pl.autoempire.core.json.JSONException;
 import pl.autoempire.core.CastlePosition;
 import pl.autoempire.core.ResourcesCurrency;
 import pl.autoempire.core.Utils;
@@ -16,25 +12,21 @@ import pl.autoempire.core.connection.ClientSettings;
 import pl.autoempire.core.connection.DisconnectException;
 import pl.autoempire.core.connection.LoginException;
 import pl.autoempire.core.connection.WaitMsgTimeoutException;
-import pl.autoempire.core.dict.CastleBattleArea;
 import pl.autoempire.core.dict.DefenceToolUnit;
-import pl.autoempire.core.dict.LiderType;
-import pl.autoempire.core.dict.ResourceType;
+import pl.autoempire.core.dict.EquipmentType;
 import pl.autoempire.core.dict.SiegieToolUnit;
 import pl.autoempire.core.dict.SoldierUnit;
 import pl.autoempire.core.dict.SoldierWeaponType;
 import pl.autoempire.core.messages.JSON.MsgOutCRA;
-import pl.autoempire.core.objects.ObjectCRA;
+import pl.autoempire.core.objects.ObjectAIItem;
 import pl.autoempire.core.objects.ObjectEQItem;
-import pl.autoempire.core.objects.ObjectGCA;
-import pl.autoempire.core.objects.ObjectGUI;
+import pl.autoempire.core.objects.ObjectEQItem_Effect;
 import pl.autoempire.core.objects.ObjectIItem;
 import pl.autoempire.core.objects.ObjectUM_L;
 import pl.autoempire.core.servers.Server;
 import pl.autoempire.core.servers.ServerSettings;
 import pl.autoempire.gui.AppData;
 import pl.autoempire.gui.resources.messages.Messages;
-import pl.autoempire.gui.windows.MainWnd;
 
 public class MainApp {
 	static String[] castle = 
@@ -62,9 +54,12 @@ public class MainApp {
 		do {
 			if (!AppData.session.isConnected())
 				reconnect();
-			printArmy(castle[7]);
-			// System.out.println("count: "+count++);
-			//pause(10);
+			try {
+				getSlotInfo();
+				System.out.println(EquipmentType.getByRawType(AppData.session.getGameBasicData().getLidersInfo().getAttackLiders()[14].getEquipment()[4].getType()));
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
 			
 		} while (loop);
 		 try {
@@ -215,7 +210,7 @@ public class MainApp {
 					System.out.println();
 				}
 			}
-		} catch (pl.autoempire.core.json.JSONException e) {
+		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 	}
@@ -229,7 +224,7 @@ public class MainApp {
 				if(castlePosition.getCastleName().equalsIgnoreCase(castleName))
 					return castlePosition;
 			}
-		} catch (pl.autoempire.core.json.JSONException e) {
+		} catch (JSONException e) {
 			e.printStackTrace();
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -258,16 +253,24 @@ public class MainApp {
 			e1.printStackTrace();
 		}
 	}
-	public static void commander()
+	public static void commander(int num)
 	{
+		
 		ObjectUM_L[] attackLiders;
 		try {
 			attackLiders = AppData.session.getGameBasicData().getLidersInfo().getAttackLiders();
 			for (int length = attackLiders.length, i = 0; i < length; ++i) {
                 final ObjectUM_L liderInfo = attackLiders[i];
-                System.out.println(liderInfo.getLiderID());
+                System.out.println(liderInfo.getLiderName());
+                for (ObjectEQItem equips : liderInfo.getEquipment()) {
+                	System.out.println(equips.getGemID());
+//					
+                	//for (ObjectEQItem_Effect eq_effect : equips.getEffects()) {
+//						System.out.println(eq_effect.getEffectId());
+//					}
+				}
             }
-		} catch (pl.autoempire.core.json.JSONException e) {
+		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 	}
@@ -280,17 +283,86 @@ public class MainApp {
 		try {
 			A = msgCRA.getContent().getJSONArray("A");
 			setTroops(A);
-		} catch (pl.autoempire.core.json.JSONException e) {
+		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		System.out.println(msgCRA.format(AppData.session.getServerSettings().getZoneName(), 1));
 		
 	}
-	private static void setTroops(JSONArray A) throws pl.autoempire.core.json.JSONException {
+	private static void setTroops(JSONArray A) throws JSONException {
+		int value = 0;
 		ObjectIItem[] armySize = AppData.session.getArmySizeInfo().getArmySize();
-		for (ObjectIItem unitSizeInfo : armySize) {
-			if(rangeToKill.contains(unitSizeInfo.getWID()));
-				
+		for (int i = 0; i < 4; i++) {
+			for (ObjectIItem unitSizeInfo : armySize) {
+				if(rangeToKill.contains(unitSizeInfo.getWID()));
+				{
+					JSONArray troopSlot = A.getJSONObject(i).getJSONObject("L").getJSONArray("U").getJSONArray(0);
+					troopSlot.put(0, unitSizeInfo.getWID());
+					troopSlot.put(1, value);
+				}
+			}
+		}
+	}
+	public static AttackSlotSize getSlotInfo() throws JSONException
+	{
+		int flankGems[][] = {{230,1},{231,4},{232,7},{233,10},{234,12},{235,15},
+				{236,17},{237,20},{238,22},{239,25},{305,26},{306,27},{307,29}};
+		int frontGems[][] = {{220,1},{221,3},{222,5},{223,7},{224,8},{225,10},
+				{226,11},{227,14},{228,15},{229,17},{302,18},{303,19},{304,20}};
+		int flankBonus=0;
+		int frontBonus=0;
+		int baseFlank = 64;
+		int baseFront = 192;
+		int commanderIndex = 14;
+		AttackSlotSize attackSlotSize = new AttackSlotSize();
+		for (int  i : AppData.session.getGameBasicData().getLidersInfo().getAttackLiders()[2].getGems()) {
+			for (int[] j : flankGems) {
+				if(i==j[0])
+					flankBonus+=j[1];
+			}
+			for (int[] j : frontGems) {
+				if(i==j[0])
+					frontBonus+=j[1];
+			}
+		}
+		for (ObjectEQItem equip : AppData.session.getGameBasicData().getLidersInfo().getAttackLiders()[commanderIndex].getEquipment()) {
+			if(equip.getType() == EquipmentType.HERO.getRawType()) {
+				for(ObjectEQItem_Effect eqEffect : equip.getEffects()) {
+						System.out.println(eqEffect.getEffectId());
+						System.out.println(eqEffect.getStrengthID());
+				}
+			}
+		}
+		System.out.println(frontBonus);
+		attackSlotSize.setFlank((int) Math.round(baseFlank*(1+flankBonus*0.01)));
+		attackSlotSize.setFront((int) Math.round(baseFront*(1+frontBonus*0.01)));
+		return attackSlotSize;
+	}
+	
+	public static void printCastle()
+	{
+		try {
+			AppData.session.refreshMapCastles(AppData.session.getCastleInfo().getCastleShortInfo().getKingdomId());
+		} catch (JSONException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		ArrayList<ObjectAIItem> castles;
+		try {
+			castles = AppData.session.getMapCastles(AppData.session.getCastleInfo().getCastleShortInfo().getKingdomId());
+		
+        if (castles == null) {
+            return ;
+        }
+        for (final ObjectAIItem mapCastle : castles) {
+            try {
+				System.out.println(mapCastle.getCastleName());
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+        }
+		} catch (JSONException e1) {
+			e1.printStackTrace();
 		}
 	}
 
