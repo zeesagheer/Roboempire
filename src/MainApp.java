@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import pl.autoempire.core.CastlePosition;
 import pl.autoempire.core.ResourcesCurrency;
+import pl.autoempire.core.UnitSize;
 import pl.autoempire.core.Utils;
 import pl.autoempire.core.connection.ClientSettings;
 import pl.autoempire.core.connection.DisconnectException;
@@ -24,6 +25,7 @@ import pl.autoempire.core.dict.SiegieToolUnit;
 import pl.autoempire.core.dict.SoldierUnit;
 import pl.autoempire.core.dict.SoldierWeaponType;
 import pl.autoempire.core.gamefiles.DungeonInfo;
+import pl.autoempire.core.gamefiles.ItemsGameFile;
 import pl.autoempire.core.json.JSONArray;
 import pl.autoempire.core.json.JSONException;
 import pl.autoempire.core.json.JSONObject;
@@ -53,30 +55,43 @@ public class MainApp {
 	static ArrayList<Integer> rangeToKill = null;
 	
 	public static void main(String[] args) throws JSONException {
-		connect("bhaai", "letmethink");
-		int count = 1;
+//		connect("bhaai", "letmethink");
+//		int count = 1;
 		boolean loop = false;
-		rangeToKill = new ArrayList<Integer>();
-		rangeToKill.add(19);
-		rangeToKill.add(23);
-		rangeToKill.add(693);
+//		rangeToKill = new ArrayList<Integer>();
+//		rangeToKill.add(19);
+//		rangeToKill.add(23);
+//		rangeToKill.add(693);
 		// Scanner in = new Scanner(System.in);
 		do {
-			if (!AppData.session.isConnected())
-				reconnect();
-			AttackSlotSize asz = getSlotInfo(17);
-			System.out.println(asz.getFlank());
-			System.out.println(asz.getFront());
+//			if (!AppData.session.isConnected())
+//				reconnect();
+//			AttackSlotSize asz = getSlotInfo(17);
+//			System.out.println(asz.getFlank());
+//			System.out.println(asz.getFront());
+			try {
+				xmlFile.load();
+				for(DungeonInfo dungeon : xmlFile.dungeons) {
+					if(dungeon.getKingdomId()==3)
+					{
+						UtilityMain.printBarronInfo(dungeon);
+						System.out.println();
+					}
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 		} while (loop);
-		 try {
-		 AppData.session.disconnect();
-		 } catch (DisconnectException e) {
-		 e.printStackTrace();
-		 }finally{
-		 //in.close();
-		 System.out.println("Disconnected !");
-		 }
+//		 try {
+//		 AppData.session.disconnect();
+//		 } catch (DisconnectException e) {
+//		 e.printStackTrace();
+//		 }finally{
+//		 //in.close();
+//		 System.out.println("Disconnected !");
+//		 }
 	}
 
 	public static void connect(String user, String pass) {
