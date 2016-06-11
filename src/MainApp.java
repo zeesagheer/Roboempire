@@ -56,7 +56,7 @@ public class MainApp {
 	static ArrayList<Integer> rangeToKill = null;
 	
 	public static void main(String[] args) throws JSONException {
-		connect("bhaai", "letmethink");
+		connect("bhaai", "bunnyzee");
 		int count = 1;
 		boolean loop = false;
 		rangeToKill = new ArrayList<Integer>(Arrays.asList(19,23,693));
@@ -67,7 +67,7 @@ public class MainApp {
 //			AttackSlotSize asz = getSlotInfo(17);
 //			System.out.println(asz.getFlank());
 //			System.out.println(asz.getFront());
-			fireAttack();
+			//fireAttack();
 			
 		} while (loop);
 		 try {
@@ -104,7 +104,7 @@ public class MainApp {
 			AppData.session.login(user, pass, null);
 			System.out.println("logged in");
 		} catch (LoginException e1) {
-			System.out.println(AppData.session.getDisconnectReason());
+			System.out.println(e1.getMessage());
 		} catch (DisconnectException e1) {
 			e1.printStackTrace();
 		} catch (InterruptedException e1) {
