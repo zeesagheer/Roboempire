@@ -1,6 +1,7 @@
 import pl.autoempire.core.UnitSize;
 import pl.autoempire.core.dict.DefenceToolUnit;
 import pl.autoempire.core.dict.DefenceToolWID;
+import pl.autoempire.core.dict.Dungeon;
 import pl.autoempire.core.dict.Kingdom;
 import pl.autoempire.core.dict.SoldierUnit;
 import pl.autoempire.core.dict.SoldierWID;
@@ -30,7 +31,8 @@ public class UtilityMain {
 			}
 			if(!flank.equals("Courtyard"))
 			{
-				System.out.println();
+				if(unitSizeTool.length !=0)
+					System.out.println();
 				for (UnitSize unit : unitSizeTool) {
 					//System.out.println(unit.WID);
 					DefenceToolWID defenceToolWID = DefenceToolUnit.getByRawType(unit.getWID()).getWid();
@@ -49,5 +51,44 @@ public class UtilityMain {
 				}
 			}
 		}
+	}
+	public static void printBaronByKID(Kingdom kingdom) {
+		try {
+			xmlFile.load();
+			for(DungeonInfo dungeon : xmlFile.dungeons) {
+				if(dungeon.getKingdomId()== kingdom.getKID())
+				{
+					printBarronInfo(dungeon);
+					System.out.println();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public static Dungeon getDungeon(int attackCount, Kingdom kingdom) {
+		try {
+			xmlFile.load();
+			for(DungeonInfo dungeonInfo : xmlFile.dungeons) {
+				if(dungeonInfo.getCountVictories() == attackCount && dungeonInfo.getKingdomId()== kingdom.getKID())
+				{
+					return new Dungeon(dungeonInfo.getKingdomId(),
+							dungeonInfo.getLordId(), 
+							dungeonInfo.getCountVictories(), 
+							dungeonInfo.getSkipCosts(),
+							dungeonInfo.getSoldiersLeft(),
+							dungeonInfo.getSoldiersMiddle(),
+							dungeonInfo.getSoldiersRight(),
+							dungeonInfo.getSoldiersCourtyard(),
+							dungeonInfo.getToolsLeft(),
+							dungeonInfo.getToolsMiddle(),
+							dungeonInfo.getToolsRight(),
+							dungeonInfo.getToolsCourtyard());
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

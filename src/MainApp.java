@@ -18,6 +18,7 @@ import pl.autoempire.core.connection.LoginException;
 import pl.autoempire.core.connection.WaitMsgTimeoutException;
 import pl.autoempire.core.dict.CastleType;
 import pl.autoempire.core.dict.DefenceToolUnit;
+import pl.autoempire.core.dict.Dungeon;
 import pl.autoempire.core.dict.DungeonDict;
 import pl.autoempire.core.dict.EquipmentType;
 import pl.autoempire.core.dict.Kingdom;
@@ -55,43 +56,28 @@ public class MainApp {
 	static ArrayList<Integer> rangeToKill = null;
 	
 	public static void main(String[] args) throws JSONException {
-//		connect("bhaai", "letmethink");
-//		int count = 1;
+		connect("bhaai", "letmethink");
+		int count = 1;
 		boolean loop = false;
-//		rangeToKill = new ArrayList<Integer>();
-//		rangeToKill.add(19);
-//		rangeToKill.add(23);
-//		rangeToKill.add(693);
+		rangeToKill = new ArrayList<Integer>(Arrays.asList(19,23,693));
 		// Scanner in = new Scanner(System.in);
 		do {
-//			if (!AppData.session.isConnected())
-//				reconnect();
+			if (!AppData.session.isConnected())
+				reconnect();
 //			AttackSlotSize asz = getSlotInfo(17);
 //			System.out.println(asz.getFlank());
 //			System.out.println(asz.getFront());
-			try {
-				xmlFile.load();
-				for(DungeonInfo dungeon : xmlFile.dungeons) {
-					if(dungeon.getKingdomId()==3)
-					{
-						UtilityMain.printBarronInfo(dungeon);
-						System.out.println();
-					}
-				}
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			fireAttack();
 			
 		} while (loop);
-//		 try {
-//		 AppData.session.disconnect();
-//		 } catch (DisconnectException e) {
-//		 e.printStackTrace();
-//		 }finally{
-//		 //in.close();
-//		 System.out.println("Disconnected !");
-//		 }
+		 try {
+		 AppData.session.disconnect();
+		 } catch (DisconnectException e) {
+		 e.printStackTrace();
+		 }finally{
+		 //in.close();
+		 System.out.println("Disconnected !");
+		 }
 	}
 
 	public static void connect(String user, String pass) {
@@ -116,6 +102,7 @@ public class MainApp {
 		System.out.println("Connected: " + AppData.session.isConnected());
 		try {
 			AppData.session.login(user, pass, null);
+			System.out.println("logged in");
 		} catch (LoginException e1) {
 			System.out.println(AppData.session.getDisconnectReason());
 		} catch (DisconnectException e1) {
@@ -125,7 +112,6 @@ public class MainApp {
 		} catch (WaitMsgTimeoutException e1) {
 			e1.printStackTrace();
 		}
-		System.out.println("logged in");
 		try {
 			Thread.sleep(8000);
 		} catch (InterruptedException e1) {
@@ -173,7 +159,6 @@ public class MainApp {
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
-			selectCastle(selectedCastle);
 		}
 	}
 
@@ -304,15 +289,16 @@ public class MainApp {
 		JSONArray A;
 		try {
 			A = msgCRA.getContent().getJSONArray("A");
-			setTroops(A);
+			setTroops(A,1,Kingdom.FIERY_HEIGTHS,UtilityMain.getDungeon(112, Kingdom.FIERY_HEIGTHS));
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		System.out.println(msgCRA.format(AppData.session.getServerSettings().getZoneName(), 1));
 		
 	}
-	private static void setTroops(JSONArray A) throws JSONException {
+	private static void setTroops(JSONArray A, int commanderIndex, Kingdom kid, Dungeon dungeon) throws JSONException {
 		int value = 0;
+		AttackSlotSize attackSlotSize = getSlotInfo(commanderIndex , 70, CastleType.ROBBER_BARON );
 		ObjectIItem[] armySize = AppData.session.getArmySizeInfo().getArmySize();
 		for (int i = 0; i < 4; i++) {
 			for (ObjectIItem unitSizeInfo : armySize) {
@@ -325,7 +311,7 @@ public class MainApp {
 			}
 		}
 	}
-	public static AttackSlotSize getSlotInfo(int commanderIndex) throws JSONException
+	public static AttackSlotSize getSlotInfo(int commanderIndex, int level, CastleType castleType) throws JSONException
 	{
 		final int flankGems[][] = {{230,1},{231,4},{232,7},{233,10},{234,12},{235,15},
 				{236,17},{237,20},{238,22},{239,25},{305,26},{306,27},{307,29}};
@@ -351,11 +337,10 @@ public class MainApp {
 //		};
 		int flankBonus=0;
 		int frontBonus=0;
-		
-		int level = 70;
+//		int level = 70;
 		int baseFlank = 64;
 		int baseFront = 192;
-		CastleType castleType = CastleType.ROBBER_BARON;
+//		CastleType castleType = CastleType.ROBBER_BARON;
 		
 		AttackSlotSize attackSlotSize = new AttackSlotSize();
 		// Gems Effect

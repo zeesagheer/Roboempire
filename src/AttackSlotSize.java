@@ -1,17 +1,17 @@
 
 public class AttackSlotSize {
-	private int flank;
-	private int front;
+	private double flank;
+	private double front;
 	public int getFlank() {
-		return flank;
+		return (int) Math.ceil(flank);
 	}
 	public void setFlank(double flank) {
-		this.flank = (int) Math.ceil(flank);
+		this.flank = flank;
 	}
 	public int getFront() {
-		return front;
+		return (int) Math.ceil(front);
 	}
 	public void setFront(double front) {
-		this.front = (int) Math.ceil(front);
+		this.front = front;
 	}
 }
