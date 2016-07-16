@@ -1,39 +1,39 @@
 
-import java.lang.reflect.Array;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import pl.autoempire.core.CastlePosition;
 import pl.autoempire.core.ResourcesCurrency;
-import pl.autoempire.core.UnitSize;
 import pl.autoempire.core.Utils;
 import pl.autoempire.core.connection.ClientSettings;
 import pl.autoempire.core.connection.DisconnectException;
 import pl.autoempire.core.connection.LoginException;
+import pl.autoempire.core.connection.WaitMsgThreadLockType;
 import pl.autoempire.core.connection.WaitMsgTimeoutException;
 import pl.autoempire.core.dict.CastleType;
 import pl.autoempire.core.dict.DefenceToolUnit;
 import pl.autoempire.core.dict.Dungeon;
-import pl.autoempire.core.dict.DungeonDict;
 import pl.autoempire.core.dict.EquipmentType;
 import pl.autoempire.core.dict.Kingdom;
 import pl.autoempire.core.dict.SiegieToolUnit;
 import pl.autoempire.core.dict.SoldierUnit;
 import pl.autoempire.core.dict.SoldierWeaponType;
-import pl.autoempire.core.gamefiles.DungeonInfo;
-import pl.autoempire.core.gamefiles.ItemsGameFile;
 import pl.autoempire.core.json.JSONArray;
 import pl.autoempire.core.json.JSONException;
 import pl.autoempire.core.json.JSONObject;
+import pl.autoempire.core.messages.MsgAction;
+import pl.autoempire.core.messages.JSON.GGSEmpireJSONMsg;
 import pl.autoempire.core.messages.JSON.MsgOutCRA;
+import pl.autoempire.core.messages.JSON.MsgOutHGH;
 import pl.autoempire.core.objects.ObjectAIItem;
 import pl.autoempire.core.objects.ObjectEQItem;
 import pl.autoempire.core.objects.ObjectEQItem_Effect;
+import pl.autoempire.core.objects.ObjectHGH;
+import pl.autoempire.core.objects.ObjectHGHItem;
 import pl.autoempire.core.objects.ObjectIItem;
 import pl.autoempire.core.objects.ObjectUM_L;
 import pl.autoempire.core.servers.Server;
@@ -64,6 +64,39 @@ public class MainApp {
 		do {
 			if (!AppData.session.isConnected())
 				reconnect();
+//			try {
+//			final MsgOutHGH msgHGH = new MsgOutHGH();
+//            msgHGH.setListType(11);
+//            msgHGH.setSearchValue("Lord of Rings");
+//			GGSEmpireJSONMsg msgIn;
+//			
+//			msgIn = (GGSEmpireJSONMsg)AppData.session.sendAndWaitForAnswer(msgHGH, WaitMsgThreadLockType.WAIT_FOR_ONE, MsgAction.hgh.name());
+//            final ObjectHGH msgInHGH = new ObjectHGH(msgIn.getContent());
+//            for (ObjectHGHItem items : msgInHGH.getRankItems()) {
+//				System.out.println(items.getAlianceName());
+//			}
+//			} catch (InterruptedException | WaitMsgTimeoutException | DisconnectException e) {
+//				e.printStackTrace();
+//			}
+			UtilityMain.printKeyByAlliance("Chakravyuh");
+			UtilityMain.printKeyByAlliance("Chakravyuh II");
+			UtilityMain.printKeyByAlliance("Death Riders");
+			UtilityMain.printKeyByAlliance("Lion Warriors");
+			UtilityMain.printKeyByAlliance("The World War");
+			UtilityMain.printKeyByAlliance("The Shield");
+			UtilityMain.printKeyByAlliance("PRAETORIUM");
+			UtilityMain.printKeyByAlliance("Illuminati");
+			UtilityMain.printKeyByAlliance("PerfectWarriors");
+			UtilityMain.printKeyByAlliance("Lion Warriors 1");
+			UtilityMain.printKeyByAlliance("CHAKRAVYUH PRO");
+			UtilityMain.printKeyByAlliance("Chakravyuh III");
+			UtilityMain.printKeyByAlliance("The Guardians");
+			UtilityMain.printKeyByAlliance("Death Riders 2");
+			UtilityMain.printKeyByAlliance("troppers");
+			UtilityMain.printKeyByAlliance("The World War 2");
+			UtilityMain.printKeyByAlliance("LW Executors");
+			UtilityMain.printKeyByAlliance("NIGHTANGLE");
+			//printCastle();
 //			AttackSlotSize asz = getSlotInfo(17);
 //			System.out.println(asz.getFlank());
 //			System.out.println(asz.getFront());
@@ -449,26 +482,30 @@ public class MainApp {
 		return attackSlotSize;
 	}
 	
-	public static void printCastle()
+	public static void printCastle() throws JSONException
 	{
 		try {
+			AppData.session.refreshMapCastles(Kingdom.BURNING_SANDS.getKID());
 			AppData.session.refreshMapCastles(Kingdom.FIERY_HEIGTHS.getKID());
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}
 		try {
-			Thread.sleep(10000);
+			Thread.sleep(5000);
 		} catch (InterruptedException e2) {
 			e2.printStackTrace();
 		}
 		ArrayList<ObjectAIItem> castles;
-		castles = AppData.session.getMapCastles(Kingdom.FIERY_HEIGTHS.getKID());
+		castles = AppData.session.getMapCastles(Kingdom.BURNING_SANDS.getKID());
+		castles.addAll(AppData.session.getMapCastles(Kingdom.FIERY_HEIGTHS.getKID()));
 		
-		if (castles == null) {
-		    return ;
-		}
+		int i=1;
 		for (final ObjectAIItem mapCastle : castles) {
-		    System.out.println();
-      }
+		    if(mapCastle.getCastleLevel()==112)
+		    	{
+		    	System.out.print(i++ + " ");
+		    	mapCastle.flush();
+		    	}
+		}
 	}
 }
