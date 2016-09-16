@@ -19,10 +19,10 @@ public class testing {
 	public static void main(String[] args) throws Exception{
 		
 		String user = "bhaai";
-		String type = "admin";
+		String type = "admin";									//use 'admin' for admin else type anything for non-admin type
 		int lincenseNr = 78154;
-		makeKey("PC",user,lincenseNr,false,type);
-		makeKey("AND",user,lincenseNr,false,type);
+		makeKey("PC",user,lincenseNr,false,type);				//for PC
+		makeKey("AND",user,lincenseNr,false,type);				//for Android
 	}
 	static void makeKey(String platform,String licenseAppUserName,
 			int licenseNr, boolean duration,String type)
@@ -94,10 +94,12 @@ public class testing {
 		String finalString = keyString + hash;
 		
 		try {
-			
+
+			String userFolderPath = dir+"/"+licenseAppUserName; 
+			String fileName = licenseAppUserName + "_" + platform + ".lsk";
 			new File(dir).mkdir();
-			new File(dir+=("/"+licenseAppUserName)).mkdir();
-			File file = new File(dir + "/" + licenseAppUserName + "_" + platform + ".lsk");
+			new File(userFolderPath).mkdir();
+			File file = new File(userFolderPath + "/" + fileName );
 			if (!file.exists()) {
 				file.createNewFile();
 			}
