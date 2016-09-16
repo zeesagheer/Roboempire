@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.8.2
+Created-By: 1.8.0_45-b14 (Oracle Corporation)
+Main-Class: pl.autoempire.gui.MainApp
+Target-Platform: WIN64
+Implementation-Language: 
+Class-Path: . lib/swt-3.7.2-win32-win32-x86_64.jar lib/swt-grouplayout
+ .jar lib/mp3plugin.jar lib/mail.jar lib/skype.jar lib/winp.jar
+
