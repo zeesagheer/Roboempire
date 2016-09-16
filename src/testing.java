@@ -15,11 +15,11 @@ import java.util.Formatter;
 import java.util.List;
 
 public class testing {
-
+	static String dir = System.getProperty("user.home") + "/Desktop/EmpireLicenses";
 	public static void main(String[] args) throws Exception{
 		
-		String user = "ishanroy";
-		String type = "non";
+		String user = "bhaai";
+		String type = "admin";
 		int lincenseNr = 78154;
 		makeKey("PC",user,lincenseNr,false,type);
 		makeKey("AND",user,lincenseNr,false,type);
@@ -94,7 +94,7 @@ public class testing {
 		String finalString = keyString + hash;
 		
 		try {
-			String dir = System.getProperty("user.home") + "/Desktop/EmpireLicenses";
+			
 			new File(dir).mkdir();
 			new File(dir+=("/"+licenseAppUserName)).mkdir();
 			File file = new File(dir + "/" + licenseAppUserName + "_" + platform + ".lsk");
